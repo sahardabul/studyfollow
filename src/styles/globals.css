@@ -1772,6 +1772,7 @@ option {
     font-size: clamp(2.1rem, 8vw, 3.8rem);
   }
 }
+<<<<<<< HEAD
 .tasks-head-wide,
 .task-row {
   display: grid;
@@ -1960,3 +1961,5 @@ option {
     justify-content: flex-start !important;
   }
 }
+=======
+>>>>>>> 7c11c7f5e773f6e90ea0d1d5e7877ebeed637251

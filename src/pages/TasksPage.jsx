@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import TaskRow from '../components/TaskRow/TaskRow'
+<<<<<<< HEAD
 import { isDueSoon, playSuccessSound } from '../data/appData'
 import {
   fetchTasks,
@@ -8,6 +9,9 @@ import {
   deleteTask,
   setTaskStatus,
 } from '../lib/tasksApi'
+=======
+import { getStoredTasks, isDueSoon, playSuccessSound, saveStoredTasks } from '../data/appData'
+>>>>>>> 7c11c7f5e773f6e90ea0d1d5e7877ebeed637251
 
 const emptyForm = {
   title: '',
@@ -26,6 +30,7 @@ export default function TasksPage() {
   const [editingId, setEditingId] = useState(null)
   const [form, setForm] = useState(emptyForm)
 
+<<<<<<< HEAD
   const loadTasks = async () => {
     try {
       const data = await fetchTasks()
@@ -45,6 +50,17 @@ export default function TasksPage() {
 
   useEffect(() => {
     loadTasks()
+=======
+  useEffect(() => {
+    const syncTasks = () => setTaskList(getStoredTasks())
+    syncTasks()
+    window.addEventListener('studyfollow-data-updated', syncTasks)
+    window.addEventListener('storage', syncTasks)
+    return () => {
+      window.removeEventListener('studyfollow-data-updated', syncTasks)
+      window.removeEventListener('storage', syncTasks)
+    }
+>>>>>>> 7c11c7f5e773f6e90ea0d1d5e7877ebeed637251
   }, [])
 
   const filtered = useMemo(() => {
@@ -56,14 +72,19 @@ export default function TasksPage() {
             ? task.status === 'Due Soon' || (task.status !== 'Done' && isDueSoon(task.dueDate))
             : task.status === filter
 
+<<<<<<< HEAD
       const matchesQuery = `${task.title} ${task.course} ${task.subtitle}`
         .toLowerCase()
         .includes(query.toLowerCase())
 
+=======
+      const matchesQuery = `${task.title} ${task.course} ${task.subtitle}`.toLowerCase().includes(query.toLowerCase())
+>>>>>>> 7c11c7f5e773f6e90ea0d1d5e7877ebeed637251
       return matchesFilter && matchesQuery
     })
   }, [taskList, filter, query])
 
+<<<<<<< HEAD
   const handleCompleteTask = async (taskId) => {
     try {
       const task = taskList.find((item) => item.id === taskId)
@@ -123,6 +144,36 @@ export default function TasksPage() {
     } catch (error) {
       console.error('Failed to delete task:', error)
     }
+=======
+  const persist = (next) => {
+    setTaskList(next)
+    saveStoredTasks(next)
+  }
+
+  const handleCompleteTask = (taskId) => {
+    let becameDone = false
+    const next = taskList.map((task) => {
+      if (task.id !== taskId) return task
+      if (task.status !== 'Done') becameDone = true
+      return { ...task, status: 'Done' }
+    })
+    persist(next)
+    if (becameDone) {
+      playSuccessSound()
+      window.dispatchEvent(new CustomEvent('studyfollow-confetti'))
+      window.dispatchEvent(new CustomEvent('studyfollow-toast', { detail: { title: 'Task completed', message: 'The task moved to Done and your dashboard was updated.' } }))
+    }
+  }
+
+  const handleUndoTask = (taskId) => {
+    persist(taskList.map((task) => (task.id === taskId ? { ...task, status: 'To Do' } : task)))
+    window.dispatchEvent(new CustomEvent('studyfollow-toast', { detail: { title: 'Task restored', message: 'The task is back in your active list.' } }))
+  }
+
+  const handleDeleteTask = (taskId) => {
+    persist(taskList.filter((task) => task.id !== taskId))
+    window.dispatchEvent(new CustomEvent('studyfollow-toast', { detail: { title: 'Task deleted', message: 'The task was removed from your list.' } }))
+>>>>>>> 7c11c7f5e773f6e90ea0d1d5e7877ebeed637251
   }
 
   const openCreateForm = () => {
@@ -144,6 +195,7 @@ export default function TasksPage() {
     setShowForm(true)
   }
 
+<<<<<<< HEAD
   const handleAddTask = async (e) => {
     e.preventDefault()
     const payload = { ...form }
@@ -186,6 +238,27 @@ export default function TasksPage() {
         })
       )
     }
+=======
+  const handleAddTask = (e) => {
+    e.preventDefault()
+    const payload = { ...form }
+
+    if (editingId) {
+      persist(taskList.map((task) => (task.id === editingId ? { ...task, ...payload } : task)))
+      window.dispatchEvent(new CustomEvent('studyfollow-toast', { detail: { title: 'Task updated', message: 'Your changes were saved successfully.' } }))
+    } else {
+      const newTask = {
+        id: Date.now(),
+        ...payload,
+      }
+      persist([newTask, ...taskList])
+      window.dispatchEvent(new CustomEvent('studyfollow-toast', { detail: { title: 'New task added', message: 'The new task is now part of your plan.' } }))
+    }
+
+    setForm(emptyForm)
+    setEditingId(null)
+    setShowForm(false)
+>>>>>>> 7c11c7f5e773f6e90ea0d1d5e7877ebeed637251
   }
 
   return (
@@ -204,7 +277,10 @@ export default function TasksPage() {
             placeholder="חפש משימה או קורס..."
           />
         </div>
+<<<<<<< HEAD
 
+=======
+>>>>>>> 7c11c7f5e773f6e90ea0d1d5e7877ebeed637251
         <div className="filter-group">
           {['All', 'Due Soon', 'In Progress', 'To Do', 'Done'].map((item) => (
             <button
@@ -217,7 +293,10 @@ export default function TasksPage() {
             </button>
           ))}
         </div>
+<<<<<<< HEAD
 
+=======
+>>>>>>> 7c11c7f5e773f6e90ea0d1d5e7877ebeed637251
         <button className="primary-button add-button" type="button" onClick={openCreateForm}>
           {showForm && !editingId ? 'Close' : '+ Add Task'}
         </button>
@@ -228,6 +307,7 @@ export default function TasksPage() {
           <form className="profile-form task-form-grid" onSubmit={handleAddTask}>
             <label>
               <span>Task Title</span>
+<<<<<<< HEAD
               <input
                 value={form.title}
                 onChange={(e) => setForm({ ...form, title: e.target.value })}
@@ -268,11 +348,31 @@ export default function TasksPage() {
                 value={form.priority}
                 onChange={(e) => setForm({ ...form, priority: e.target.value })}
               >
+=======
+              <input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required />
+            </label>
+            <label>
+              <span>Subtitle</span>
+              <input value={form.subtitle} onChange={(e) => setForm({ ...form, subtitle: e.target.value })} />
+            </label>
+            <label>
+              <span>Course</span>
+              <input value={form.course} onChange={(e) => setForm({ ...form, course: e.target.value })} required />
+            </label>
+            <label>
+              <span>Due Date</span>
+              <input type="date" value={form.dueDate} onChange={(e) => setForm({ ...form, dueDate: e.target.value })} required />
+            </label>
+            <label>
+              <span>Priority</span>
+              <select value={form.priority} onChange={(e) => setForm({ ...form, priority: e.target.value })}>
+>>>>>>> 7c11c7f5e773f6e90ea0d1d5e7877ebeed637251
                 <option>High</option>
                 <option>Medium</option>
                 <option>Low</option>
               </select>
             </label>
+<<<<<<< HEAD
 
             <label>
               <span>Status</span>
@@ -280,12 +380,18 @@ export default function TasksPage() {
                 value={form.status}
                 onChange={(e) => setForm({ ...form, status: e.target.value })}
               >
+=======
+            <label>
+              <span>Status</span>
+              <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}>
+>>>>>>> 7c11c7f5e773f6e90ea0d1d5e7877ebeed637251
                 <option>To Do</option>
                 <option>Due Soon</option>
                 <option>In Progress</option>
                 <option>Done</option>
               </select>
             </label>
+<<<<<<< HEAD
 
             <div className="form-actions-inline form-actions-span">
               <button className="primary-button" type="submit">
@@ -301,6 +407,11 @@ export default function TasksPage() {
                   setForm(emptyForm)
                 }}
               >
+=======
+            <div className="form-actions-inline form-actions-span">
+              <button className="primary-button" type="submit">{editingId ? 'Update Task' : 'Save Task'}</button>
+              <button className="secondary-button" type="button" onClick={() => { setShowForm(false); setEditingId(null); setForm(emptyForm) }}>
+>>>>>>> 7c11c7f5e773f6e90ea0d1d5e7877ebeed637251
                 Cancel
               </button>
             </div>
@@ -317,7 +428,10 @@ export default function TasksPage() {
           <span>Priority</span>
           <span>Actions</span>
         </div>
+<<<<<<< HEAD
 
+=======
+>>>>>>> 7c11c7f5e773f6e90ea0d1d5e7877ebeed637251
         <div className="data-table">
           {filtered.map((task) => (
             <TaskRow
@@ -329,12 +443,20 @@ export default function TasksPage() {
               onDelete={handleDeleteTask}
             />
           ))}
+<<<<<<< HEAD
 
           {filtered.length === 0 ? (
             <div className="empty-state">No tasks found for this filter.</div>
           ) : null}
+=======
+          {filtered.length === 0 ? <div className="empty-state">No tasks found for this filter.</div> : null}
+>>>>>>> 7c11c7f5e773f6e90ea0d1d5e7877ebeed637251
         </div>
       </section>
     </div>
   )
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 7c11c7f5e773f6e90ea0d1d5e7877ebeed637251
