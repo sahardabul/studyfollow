@@ -4,6 +4,7 @@ import Footer from './components/Footer/Footer'
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute'
 import ConfettiBurst from './components/ConfettiBurst/ConfettiBurst'
 import ToastCenter from './components/ToastCenter/ToastCenter'
+import FeedbackButton from './components/FeedbackButton/FeedbackButton'
 import LoginPage from './pages/LoginPage'
 import DashboardPage from './pages/DashboardPage'
 import TasksPage from './pages/TasksPage'
@@ -18,6 +19,7 @@ function AppLayout({ children }) {
       <Footer />
       <ConfettiBurst />
       <ToastCenter />
+      <FeedbackButton />
     </div>
   )
 }
